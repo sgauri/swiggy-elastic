@@ -104,9 +104,11 @@ def create_menu(request):
 def order_place(request):
 	if request.method == "POST":
 		data = json.loads(request.body.decode('utf-8'))
-		menu = Menu.objects.get(menu=data['menu'])
-		restaurant = menu.restaurant
-		lat1, lon1 = restaurant.lat, restaurant.lon
-		drivers_list = query_for_driver_search(lat1, lon1)
-		return JsonResponse({'drivers':drivers_list})
-	return JsonResponse('Invalid request')
+		if Menu.objects.filter(menu=data['menu']).exists():
+			menu = Menu.objects.get(menu=data['menu'])
+			restaurant = menu.restaurant
+			lat1, lon1 = restaurant.lat, restaurant.lon
+			drivers_list = query_for_driver_search(lat1, lon1)
+			return JsonResponse({'drivers':drivers_list})
+		return JsonResponse('Kindly create a menu first then place the order of that menu', safe=False)
+	return JsonResponse('Invalid request', safe=False)
